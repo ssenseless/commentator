@@ -2,6 +2,8 @@ import os
 import pyperclip
 import webbrowser
 
+from helpers import get_cur_dir
+
 
 def mirror_browser_interaction() -> None:
   input("Press [Enter] when you have copied the information from your browser...")
@@ -9,7 +11,7 @@ def mirror_browser_interaction() -> None:
   font_text: str = pyperclip.paste().replace("\r", "")
   
   filename: str = input("Choose a name for your ASCII font: ")
-  parent_dir: str = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+  parent_dir: str = os.path.dirname(get_cur_dir())
 
   if filename[-4:] != ".txt":
     filename = os.path.join(parent_dir, ".txt", filename + ".txt")
@@ -31,7 +33,7 @@ def open_ascii_browser() -> None:
 
 
 def copy_to_clipboard() -> None:
-  parent_dir: str = os.path.dirname(os.path.realpath(__file__))
+  parent_dir: str = get_cur_dir()
   filename:   str = os.path.join(parent_dir, "new_ascii_generator.txt")
 
   try:

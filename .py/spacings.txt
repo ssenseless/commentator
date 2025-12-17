@@ -1,2 +1,4 @@
 
 colossal=11
+alligator=7
+dosrebel=11

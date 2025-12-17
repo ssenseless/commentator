@@ -1,33 +1,175 @@
 import os
 import sys
 
+from helpers import get_cur_dir
+
+
 translation_unit: dict[int, list[str]] = {}
 
-def biggify_comment(filename: str) -> None:
-  spacing:         int       = get_proper_spacing(filename=filename)
-  done_biggifying: bool      = False
+
+def ensure_dir() -> str:
+  is_valid_file_instance: bool = False
+  while not is_valid_file_instance:
+    valid_file_instances: list[str] = os.listdir(os.path.join(os.path.dirname(get_cur_dir()), ".txt"))
+
+    if not valid_file_instances:
+      raise FileExistsError
+    
+    input_str: str = "\nEnter target ASCII filename:\n"
+    for valid_file_instance in valid_file_instances:
+      input_str += " |- " + valid_file_instance + "\n"
+    
+    filename: str = input(input_str)
+
+    parent_dir: str = os.path.dirname(get_cur_dir())
+    file_implied_txt:  str = os.path.join(parent_dir, ".txt", filename)
+    file_no_txt:       str = os.path.join(parent_dir, ".txt", filename + ".txt")
+
+    is_valid_file_instance = os.path.isfile(file_implied_txt) or os.path.isfile(file_no_txt)
+
+  return filename
+
+def check_language() -> int:
+  while 1:
+    language: int = int(input(
+        "\nWhich language are you using?\n"
+      + " [1]: C-Style    (/*    ...    */)\n"
+      + " [2]: Python     (\"\"\"   ...   \"\"\")\n"
+      + " [3]: HTML/XML   (<!--  ...   -->)\n"
+      + " [4]: Lua        (--[[  ...    ]])\n"
+      + " [5]: Delphi     ({     ...     })\n"
+      + " [6]: Old Pascal ((*    ...    *))\n"
+      + " [---[ "
+    ))
+
+    if language > 0 and language < 7:
+      return language - 1
+    
+    print("Choose a valid language, please! ([1] - [6])", end="")    
+
+  
+  # how did you even get here?
+  sys.exit(-1)
+
+
+def check_separator() -> tuple[str, int]:
+  retstr: str = ""
+  retint: int = -1
+
+  while 1:
+    separator: int = int(input(
+        "\nWhich line separator would you prefer?\n"
+      + " [1]: *\n"
+      + " [2]: -\n"
+      + " [3]: #\n"
+      + " [4]: +\n"
+      + " [5]: (empty space)\n"
+      + " [6]: Custom separator\n"
+      + " [---[ "
+    ))
+
+    if separator == 6:
+      retstr = input("What would you like to use as a separator? (press enter when finished): ")
+      break
+    
+    match separator:
+      case 1:
+        retstr = "*"
+        break
+      case 2:
+        retstr = "-"
+        break
+      case 3:
+        retstr = "#"
+        break
+      case 4:
+        retstr = "+"
+        break
+      case 5:
+        retstr = " "
+        break
+      case _:
+        print("Choose a valid separator, please! ([1] - [5])", end="")
+
+  while 1:
+    retint: int = int(input("\nHow many lines of separator characters would you like between your comment characters and the comment itself? (+int): "))
+    
+    if retint >= 0:
+      return retstr, retint
+    
+    print("Read this time.", end="")
+  
+  # how did you even get here?
+  sys.exit(-1)
+
+
+def biggify_comment(filename: str, language: int, separator: tuple[str, int]) -> None:
+  spacing:         int  = get_proper_spacing(filename=filename)
+  done_biggifying: bool = False
 
   while not done_biggifying:
     user_input:      str       = input("Enter comment text to biggify: ")
     biggified_input: list[str] = biggify_str(input_str=user_input, spacing=spacing)
-    asterisks:       str       = "*" * (len(biggified_input[0]) + 2)
 
-    print("/*\n"
-        + " " + asterisks + "\n"
-        + " " + asterisks + "\n"
-        + " *")
-    
-    for line in biggified_input:
-      if line.strip():
-        print(" * " + line)
+    print_comment(language, separator, biggified_input)
 
-    print(" *\n"
-        + " " + asterisks + "\n"
-        + " " + asterisks + "\n"
-        + " */\n")
-    
     done_biggifying = input("Would you like to make another with the same font? (y/n): ") != 'y'
   
+
+def print_comment(language: int, separator: tuple[str, int], comment: list[str]) -> None:
+  language_bits:  list[str] = get_language_string(language=language)
+  separator_bits: list[str] = get_separator_string(separator=separator, length=len(comment[0]))
+
+  if not language_bits or not separator_bits:
+    print("Something went wrong with your language or separator choice, exiting...")
+    sys.exit(-1)
+  
+  print(language_bits[0] + separator_bits[0], end="")
+  
+  for line in comment:
+    if line.strip():
+      print(separator_bits[1] + line)
+
+  print(separator_bits[2] + language_bits[1])
+    
+
+def get_language_string(language: int) -> list[str]:
+  match language:
+    case 0:
+      return ["/*\n", " */\n"]
+    case 1:
+      return ["\"\"\"\n", "\"\"\"\n"]
+    case 2:
+      return ["<!--\n", "-->\n"]
+    case 3:
+      return ["--[[\n", "]]\n"]
+    case 4:
+      return ["{\n", "}\n"]
+    case 5:
+      return ["(*\n", "*)\n"]
+    case _:
+      return []
+
+
+def get_separator_string(separator: tuple[str, int], length: int) -> list[str]:
+  match separator[0]:
+    case "*":
+      return [(" " + "*" * (length + 2) + "\n") * separator[1] + " *\n", " * ", " *\n" + (" " + "*" * (length + 2) + "\n") * separator[1]]
+    case "#":
+      return [(" " + "#" * (length + 2) + "\n") * separator[1] + " #\n", " # ", " #\n" + (" " + "#" * (length + 2) + "\n") * separator[1]]
+    case "-":
+      return [(" " + "-" * (length + 2) + "\n") * separator[1] + " -\n", " - ", " -\n" + (" " + "-" * (length + 2) + "\n") * separator[1]]
+    case "+":
+      return [(" " + "+" * (length + 2) + "\n") * separator[1] + " +\n", " + ", " +\n" + (" " + "+" * (length + 2) + "\n") * separator[1]]
+    case " ":
+      return [(" " + " " * (length + 2) + "\n") * separator[1] + "  \n", "   ", "  \n" + (" " + " " * (length + 2) + "\n") * separator[1]]
+    case _:
+      return  [
+                (" " + f"{separator[0]}" * (round((length + 2) / len(separator[0])) + 1) + "\n") * separator[1] + f" {separator[0]}\n", 
+                f" {separator[0]} ", 
+                f" {separator[0]}\n" + (" " + f"{separator[0]}" * (round((length + 2) / len(separator[0])) + 1) + "\n") * separator[1]
+              ]
+
 
 def get_proper_spacing(filename: str) -> int:
   spacing: int = check_spacing_file(filename=filename)
@@ -79,7 +221,7 @@ def save_spacing(filename: str, spacing: int) -> None:
     filename = filename[:-4]
   
   try:
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "spacings.txt"), "a", encoding="utf-8") as file:
+    with open(os.path.join(get_cur_dir(), "spacings.txt"), "a", encoding="utf-8") as file:
       file.write(f"\n{filename}={spacing}")
         
   except FileNotFoundError:
@@ -94,12 +236,13 @@ def check_spacing_file(filename: str) -> int:
     filename = filename[:-4]
   
   try:
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "spacings.txt"), "r", encoding="utf-8") as file:
+    with open(os.path.join(get_cur_dir(), "spacings.txt"), "r", encoding="utf-8") as file:
       for line in file:
-        font, spacing = line.split("=")
+        if line.strip():
+          font, spacing = line.split("=")
 
-        if font == filename:
-          return int(spacing)
+          if font == filename:
+            return int(spacing)
         
   except FileNotFoundError:
     print("--WARNING--: Missing \"spacings.txt\" file in \".py/\"! Exiting...")
@@ -108,7 +251,7 @@ def check_spacing_file(filename: str) -> int:
   return -1
 
 def read_ascii_into_tunit(filename: str = "ascii.txt", spacing: int = 11) -> None:
-  parent_dir: str = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+  parent_dir: str = os.path.dirname(get_cur_dir())
   if filename[-4:] == ".txt":
     filename = os.path.join(parent_dir, ".txt", filename)
   else:
@@ -158,6 +301,8 @@ def biggify_str(input_str: str, spacing: int) -> list[str]:
 
 
 if __name__ == "__main__":
-  filename: str = input("Enter target ASCII filename: ")
+  filename:  str             = ensure_dir()
+  language:  int             = check_language()
+  separator: tuple[str, int] = check_separator()
 
-  biggify_comment(filename)
+  biggify_comment(filename, language, separator)

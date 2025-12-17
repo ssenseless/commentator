@@ -1,0 +1,4 @@
+**/__pycache__/
+**/application_handler.spec
+dist/
+build/
