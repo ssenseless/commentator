@@ -1,7 +1,7 @@
 import os
 import sys
 
-from helpers import get_cur_dir
+from helpers import get_root_dir
 
 
 translation_unit: dict[int, list[str]] = {}
@@ -10,10 +10,10 @@ translation_unit: dict[int, list[str]] = {}
 def ensure_dir() -> str:
   is_valid_file_instance: bool = False
   while not is_valid_file_instance:
-    valid_file_instances: list[str] = os.listdir(os.path.join(os.path.dirname(get_cur_dir()), ".txt"))
+    valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), ".txt"))
 
     if not valid_file_instances:
-      raise FileExistsError
+      raise FileNotFoundError
     
     input_str: str = "\nEnter target ASCII filename:\n"
     for valid_file_instance in valid_file_instances:
@@ -21,9 +21,9 @@ def ensure_dir() -> str:
     
     filename: str = input(input_str)
 
-    parent_dir: str = os.path.dirname(get_cur_dir())
-    file_implied_txt:  str = os.path.join(parent_dir, ".txt", filename)
-    file_no_txt:       str = os.path.join(parent_dir, ".txt", filename + ".txt")
+    root_dir: str = get_root_dir()
+    file_implied_txt:  str = os.path.join(root_dir, ".txt", filename)
+    file_no_txt:       str = os.path.join(root_dir, ".txt", filename + ".txt")
 
     is_valid_file_instance = os.path.isfile(file_implied_txt) or os.path.isfile(file_no_txt)
 
@@ -221,7 +221,7 @@ def save_spacing(filename: str, spacing: int) -> None:
     filename = filename[:-4]
   
   try:
-    with open(os.path.join(get_cur_dir(), "spacings.txt"), "a", encoding="utf-8") as file:
+    with open(os.path.join(get_root_dir(), "_internal", "res", "spacings.txt"), "a", encoding="utf-8") as file:
       file.write(f"\n{filename}={spacing}")
         
   except FileNotFoundError:
@@ -236,7 +236,7 @@ def check_spacing_file(filename: str) -> int:
     filename = filename[:-4]
   
   try:
-    with open(os.path.join(get_cur_dir(), "spacings.txt"), "r", encoding="utf-8") as file:
+    with open(os.path.join(get_root_dir(), "_internal", "res", "spacings.txt"), "r", encoding="utf-8") as file:
       for line in file:
         if line.strip():
           font, spacing = line.split("=")
@@ -251,11 +251,11 @@ def check_spacing_file(filename: str) -> int:
   return -1
 
 def read_ascii_into_tunit(filename: str = "ascii.txt", spacing: int = 11) -> None:
-  parent_dir: str = os.path.dirname(get_cur_dir())
+  root_dir: str = get_root_dir()
   if filename[-4:] == ".txt":
-    filename = os.path.join(parent_dir, ".txt", filename)
+    filename = os.path.join(root_dir, ".txt", filename)
   else:
-    filename = os.path.join(parent_dir, ".txt", filename + ".txt")
+    filename = os.path.join(root_dir, ".txt", filename + ".txt")
 
   current_giant_char: list[str] = [""] * spacing
   count: int = 0

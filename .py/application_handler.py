@@ -1,5 +1,6 @@
 from new_ascii_generator import *
 from comment_generator import *
+from helpers import get_root_dir
   
 
 def handle() -> None:
@@ -51,7 +52,7 @@ def run_comment_generator() -> None:
     
     try:
       filename:  str = ensure_dir()
-    except FileExistsError:
+    except FileNotFoundError:
       print("You don't have any font files! You need to import at least one to start.")
       return
     
@@ -65,4 +66,7 @@ def run_comment_generator() -> None:
 
 
 if __name__ == "__main__":
+  if not os.path.exists(os.path.join(get_root_dir(), ".txt")):
+    os.mkdir(".txt")
+  
   handle()

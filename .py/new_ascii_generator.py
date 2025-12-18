@@ -2,7 +2,7 @@ import os
 import pyperclip
 import webbrowser
 
-from helpers import get_cur_dir
+from helpers import get_root_dir
 
 
 def mirror_browser_interaction() -> None:
@@ -11,12 +11,12 @@ def mirror_browser_interaction() -> None:
   font_text: str = pyperclip.paste().replace("\r", "")
   
   filename: str = input("Choose a name for your ASCII font: ")
-  parent_dir: str = os.path.dirname(get_cur_dir())
+  root_dir: str = get_root_dir()
 
   if filename[-4:] != ".txt":
-    filename = os.path.join(parent_dir, ".txt", filename + ".txt")
+    filename = os.path.join(root_dir, ".txt", filename + ".txt")
   else:
-    filename = os.path.join(parent_dir, ".txt", filename)
+    filename = os.path.join(root_dir, ".txt", filename)
 
   try:
     with open(filename, "w", encoding="utf-8") as file:
@@ -33,15 +33,15 @@ def open_ascii_browser() -> None:
 
 
 def copy_to_clipboard() -> None:
-  parent_dir: str = get_cur_dir()
-  filename:   str = os.path.join(parent_dir, "new_ascii_generator.txt")
+  root_dir: str = get_root_dir()
+  filename:   str = os.path.join(root_dir, "_internal", "res", "new_ascii_generator.txt")
 
   try:
     with open(filename, "r", encoding="utf-8") as file:
       clipboard: str = file.read()
 
   except FileNotFoundError:
-      print(f"\"{filename}\" not found in \".txt/\" directory (ask Carson if you don't have it).")
+      print(f"\"{filename}\" not found (ask Carson if you don't have it).")
   except Exception as e:
       print(f"Encountered an error: {e}")
 
