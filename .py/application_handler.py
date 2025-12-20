@@ -1,6 +1,6 @@
 from new_ascii_generator import *
-from comment_generator import *
-from helpers import get_root_dir
+from comment_generator   import *
+from helpers import get_root_dir, delete_font_file
   
 
 def handle() -> None:
@@ -8,8 +8,9 @@ def handle() -> None:
       user_input: int = int(input(
           "\nWould you like to...\n"
         + " [1]: Import a new ASCII font?\n"
-        + " [2]: Generate a comment?\n"
-        + " [3]: Quit?\n"
+        + " [2]: Delete a font file?\n"
+        + " [3]: Generate a comment?\n"
+        + " [4]: Quit?\n"
         + " [---[ "
       ))
 
@@ -17,8 +18,10 @@ def handle() -> None:
         case 1:
           run_ascii_import()
         case 2:
-          run_comment_generator()
+          delete_font_file()
         case 3:
+          run_comment_generator()
+        case 4:
           print("Thank you!")
           sys.exit(0)
         case _:
@@ -44,12 +47,10 @@ def run_ascii_import() -> None:
       break
 
     happened_before = True
-  
 
   
 def run_comment_generator() -> None:
   while 1:
-    
     try:
       filename:  str = ensure_dir()
     except FileNotFoundError:

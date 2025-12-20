@@ -9,9 +9,8 @@ def mirror_browser_interaction() -> None:
   input("Press [Enter] when you have copied the information from your browser...")
   
   font_text: str = pyperclip.paste().replace("\r", "")
-  
-  filename: str = input("Choose a name for your ASCII font: ")
-  root_dir: str = get_root_dir()
+  filename:  str = input("Choose a name for your ASCII font: ")
+  root_dir:  str = get_root_dir()
 
   if filename[-4:] != ".txt":
     filename = os.path.join(root_dir, ".txt", filename + ".txt")

@@ -5,8 +5,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('res\\new_ascii_generator.txt', 'res'),
-        ('res\\spacings.txt', 'res'),
+        ('_internal\\res\\new_ascii_generator.txt', 'res'),
+        ('_internal\\res\\spacings.txt', 'res'),
     ],
     hiddenimports=[],
     hookspath=[],

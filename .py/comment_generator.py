@@ -3,7 +3,6 @@ import sys
 
 from helpers import get_root_dir
 
-
 translation_unit: dict[int, list[str]] = {}
 
 
@@ -28,6 +27,7 @@ def ensure_dir() -> str:
     is_valid_file_instance = os.path.isfile(file_implied_txt) or os.path.isfile(file_no_txt)
 
   return filename
+
 
 def check_language() -> int:
   while 1:
