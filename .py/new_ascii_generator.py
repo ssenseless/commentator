@@ -5,16 +5,16 @@ import webbrowser
 from helpers import get_root_dir
 
 
-def mirror_browser_interaction() -> None:
+def mirror_browser_interaction() -> str:
   input("Press [Enter] when you have copied the information from your browser...")
   
-  font_text: str = pyperclip.paste().replace("\r", "")
-  filename:  str = input("Choose a name for your ASCII font: ")
+  font_text:    str = pyperclip.paste().replace("\r", "")
+  name_choice:  str = input("Choose a name for your ASCII font: ")
 
-  if filename[-4:] != ".txt":
-    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename + ".txt")
+  if name_choice[-4:] != ".txt":
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", name_choice + ".txt")
   else:
-    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename)
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", name_choice)
 
   try:
     with open(filename, "w", encoding="utf-8") as file:
@@ -24,6 +24,8 @@ def mirror_browser_interaction() -> None:
     print(f"Encountered an error: {e}")
   except Exception as e:
     print(f"Encountered an error: {e}")
+
+  return name_choice
 
 
 def open_ascii_browser() -> None:

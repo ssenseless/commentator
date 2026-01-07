@@ -14,7 +14,7 @@ def delete_font_file() -> None:
         
         filename: str = input(input_str)
         for valid_file_instance in valid_file_instances:
-            if valid_file_instance <= {filename, filename + ".txt"}:
+            if valid_file_instance in {filename, filename + ".txt"}:
                 os.remove(valid_file_instance)
                 break
 

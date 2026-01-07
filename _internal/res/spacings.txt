@@ -5,3 +5,4 @@ dosrebel=11
 standard=6
 tanja=8
 tiles=8
+ansishadow=7

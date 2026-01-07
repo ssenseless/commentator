@@ -1,11 +1,15 @@
 import os
-from helpers import get_root_dir
+import sys
+import pyperclip
+from helpers import get_root_dir, clear_terminal, clear
 
 translation_unit: dict[int, list[str]] = {}
 
 
 def ensure_dir() -> str:
   is_valid_file_instance: bool = False
+  is_user_input_finished: bool = False
+
   while not is_valid_file_instance:
     valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), "_internal", ".txt"))
 
@@ -13,17 +17,37 @@ def ensure_dir() -> str:
       raise FileNotFoundError
     
     # prep for loop
-    input_str: str = "Enter target ASCII filename (previews above):\n"
+    filename: str = ""
+    n:        int = 0
+    max_page: int = -(len(valid_file_instances) // -5)
+    last_idx: int
     print("")
-    for valid_file_instance in valid_file_instances:
-      # print C-like comment with one separating line and "*" as the separator
-      print("[---[ ", valid_file_instance + " --")
-      print_comment(0,  ("*", 1), biggify_str("test string!", get_proper_spacing(valid_file_instance)))
-      print("")
 
-      input_str += " |- " + valid_file_instance + "\n"
+    while not is_user_input_finished:
+      clear_terminal()
+      input_str: str = "Enter target ASCII filename (previews above):\n"
 
-    filename: str = input(input_str)
+      for idx in range(0 + (n * 5), 5 + (n * 5)):
+        if idx < len(valid_file_instances):
+          valid_file_instance: str = valid_file_instances[idx]
+          # print C-like comment with one separating line and "*" as the separator
+          print(" [---[", valid_file_instance[:-4] + " --")
+          print_comment(0,  ("*", 0), biggify_str("test string!", get_proper_spacing(valid_file_instance)))
+          print("")
+
+          last_idx = (idx % 5) + 2
+          input_str += f" [{last_idx - 1}]: " + valid_file_instance[:-4] + "\n"
+
+      input_str += f" [{last_idx}]: Next page (or loop back to start)\n"
+      input_str += f" -- ({n + 1} / {max_page}) --\n"
+      input_str += "\n [---[ "
+      choice: int = int(input(input_str))
+      
+      if choice == last_idx:
+        n = (n + 1) % max_page
+      else:
+        filename = valid_file_instances[((choice - 1) % 5) + (n * 5)]
+        is_user_input_finished = True
 
     file_implied_txt:  str = os.path.join(get_root_dir(), "_internal", ".txt", filename)
     file_no_txt:       str = os.path.join(get_root_dir(), "_internal", ".txt", filename + ".txt")
@@ -34,6 +58,7 @@ def ensure_dir() -> str:
 
 
 def check_language() -> int:
+  clear_terminal()
   language: int = int(input(
       "\nWhich language are you using?\n"
     + " [1]: C-Style    (/*    ...    */)\n"
@@ -50,9 +75,10 @@ def check_language() -> int:
 
 
 def check_separator() -> tuple[str, int]:
+  clear_terminal()
   retstr: str = ""
   retint: int = -1
-
+  
   while 1:
     separator: int = int(input(
         "\nWhich line separator would you prefer?\n"
@@ -61,13 +87,10 @@ def check_separator() -> tuple[str, int]:
       + " [3]: #\n"
       + " [4]: +\n"
       + " [5]: (empty space)\n"
-      + " [6]: Custom separator\n"
+      + " [6]: No separator\n"
+      + " [7]: Custom separator\n"
       + " [---[ "
     ))
-
-    if separator == 6:
-      retstr = input("What would you like to use as a separator? (press enter when finished): ")
-      break
     
     match separator:
       case 1:
@@ -85,8 +108,13 @@ def check_separator() -> tuple[str, int]:
       case 5:
         retstr = " "
         break
+      case 6:
+        return ("*", 0)
+      case 7:
+        retstr = input("What would you like to use as a separator? (press enter when finished): ")
+        break
       case _:
-        print("Choose a valid separator, please! ([1] - [5])", end="")
+        print("Choose a valid separator, please! ([1] - [7])", end="")
 
   retint: int = int(input("\nHow many lines of separator characters would you like between your comment characters and the comment itself? (+int): "))
     
@@ -99,30 +127,37 @@ def biggify_comment(filename: str, language: int, separator: tuple[str, int]) ->
   done_biggifying: bool = False
 
   while not done_biggifying:
+    clear_terminal()
+
     user_input:      str       = input("Enter comment text to biggify: ")
     biggified_input: list[str] = biggify_str(input_str=user_input, spacing=spacing)
+    comment:         str       = print_comment(language=language, separator=separator, comment=biggified_input)
 
-    print_comment(language, separator, biggified_input)
+    if input("Would you like to copy this comment to your clipboard? (y/n): ") == 'y':
+      pyperclip.copy(comment)
 
-    done_biggifying = input("Would you like to make another with the same font? (y/n): ") != 'y'
+    done_biggifying = input("Would you like to make another comment with the same font? (y/n): ") != 'y'
   
 
-def print_comment(language: int, separator: tuple[str, int], comment: list[str]) -> None:
+def print_comment(language: int, separator: tuple[str, int], comment: list[str]) -> str:
   language_bits:  list[str] = get_language_string(language=language)
   separator_bits: list[str] = get_separator_string(separator=separator, length=len(comment[0]))
 
   if not language_bits or not separator_bits:
     print("Something went wrong with your language or separator choice, exiting...")
     sys.exit(-1)
-  
-  print(language_bits[0] + separator_bits[0], end="")
+
+  output: str = language_bits[0] + separator_bits[0]
   
   for line in comment:
     if line.strip():
-      print(separator_bits[1] + line)
+      output += separator_bits[1] + line + "\n"
 
-  print(separator_bits[2] + language_bits[1])
-    
+  output += separator_bits[2] + language_bits[1]
+
+  print(output)
+  return output
+
 
 def get_language_string(language: int) -> list[str]:
   match language:
@@ -145,7 +180,7 @@ def get_language_string(language: int) -> list[str]:
 def get_separator_string(separator: tuple[str, int], length: int) -> list[str]:
   match separator[0]:
     case "*":
-      return [(" " + "*" * (length + 2) + "\n") * separator[1] + " *\n", " * ", " *\n" + (" " + "*" * (length + 2) + "\n") * separator[1]]
+      return [(" " + "*" * (length + 2) + "\n") * separator[1], " * ", (" " + "*" * (length + 2) + "\n") * separator[1]]
     case "#":
       return [(" " + "#" * (length + 2) + "\n") * separator[1] + " #\n", " # ", " #\n" + (" " + "#" * (length + 2) + "\n") * separator[1]]
     case "-":
@@ -170,9 +205,11 @@ def get_proper_spacing(filename: str) -> int:
    
   is_properly_spaced: bool      = False
   input_check:        set[int]  = {0x41, 0x42, 0x43}
-  spacing                       = 0
+  spacing                       = 1
 
   while not is_properly_spaced:
+    clear_terminal()
+
     if not filename:
       read_ascii_into_tunit(spacing=spacing)
     else:
@@ -199,9 +236,7 @@ def get_proper_spacing(filename: str) -> int:
     is_properly_spaced = input("\nConfirm spacing appears correct (should look like [A][B][C]?) (y/n): ") == "y"
     spacing += 1
 
-  if input("Would you like to save this spacing for future use? (y/n): ") == 'y':
-    save_spacing(filename=filename, spacing=spacing - 1)
-
+  save_spacing(filename=filename, spacing=spacing - 1)
   return spacing
 
 

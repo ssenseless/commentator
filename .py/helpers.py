@@ -1,6 +1,7 @@
 import os
 import sys
 
+clear: str = 'cls'
 
 def get_root_dir() -> str:
   if getattr(sys, "frozen", False):
@@ -10,8 +11,15 @@ def get_root_dir() -> str:
   
 
 def delete_font_file() -> None:
+  clear_terminal()
+  happened_before: bool = False
+
   try:
     while 1:
+      if happened_before:
+        clear_terminal()
+        print("Invalid filename, try again (with or without \".txt\")")
+        
       valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), "_internal", ".txt"))
 
       if not valid_file_instances:
@@ -28,6 +36,21 @@ def delete_font_file() -> None:
           print(f"\"{valid_file_instance}\" removed from system.")
           return
       
-      print("Invalid filename, try again (with or without \".txt\")")
+      happened_before = True
+
   except FileNotFoundError:
     print("You don't have any font files! Hard to delete files that don't exist.")
+
+
+def sys_clear_setup():
+  if sys.platform in ('linux', 'darwin'):
+    clear = 'clear'
+  elif sys.platform == 'win32':
+    clear = 'cls'
+  else:
+    print('Platform not supported', file=sys.stderr)
+    exit(1)
+  
+
+def clear_terminal() -> None:
+    os.system(clear)
