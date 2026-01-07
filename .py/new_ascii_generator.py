@@ -10,12 +10,11 @@ def mirror_browser_interaction() -> None:
   
   font_text: str = pyperclip.paste().replace("\r", "")
   filename:  str = input("Choose a name for your ASCII font: ")
-  root_dir:  str = get_root_dir()
 
   if filename[-4:] != ".txt":
-    filename = os.path.join(root_dir, ".txt", filename + ".txt")
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename + ".txt")
   else:
-    filename = os.path.join(root_dir, ".txt", filename)
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename)
 
   try:
     with open(filename, "w", encoding="utf-8") as file:
@@ -32,8 +31,7 @@ def open_ascii_browser() -> None:
 
 
 def copy_to_clipboard() -> None:
-  root_dir: str = get_root_dir()
-  filename:   str = os.path.join(root_dir, "_internal", "res", "new_ascii_generator.txt")
+  filename:   str = os.path.join(get_root_dir(), "_internal", "res", "new_ascii_generator.txt")
 
   try:
     with open(filename, "r", encoding="utf-8") as file:

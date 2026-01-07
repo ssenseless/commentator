@@ -3,7 +3,7 @@ from helpers import get_root_dir
 
 def delete_font_file() -> None:
     while 1:
-        valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), ".txt"))
+        valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), "_internal", ".txt"))
 
         if not valid_file_instances:
             raise FileNotFoundError

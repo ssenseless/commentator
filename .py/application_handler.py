@@ -7,26 +7,25 @@ def handle() -> None:
   while 1:
       user_input: int = int(input(
           "\nWould you like to...\n"
-        + " [1]: Import a new ASCII font?\n"
-        + " [2]: Delete a font file?\n"
-        + " [3]: Generate a comment?\n"
+        + " [1]: Generate a comment?\n"
+        + " [2]: Import a new ASCII font?\n"
+        + " [3]: Delete a font file?\n"
         + " [4]: Quit?\n"
         + " [---[ "
       ))
 
       match user_input:
         case 1:
-          run_ascii_import()
-        case 2:
-          delete_font_file()
-        case 3:
           run_comment_generator()
+        case 2:
+          run_ascii_import()
+        case 3:
+          delete_font_file()
         case 4:
           print("Thank you!")
           sys.exit(0)
         case _:
           print("Choose a valid option, please! ([1] - [3])")
-
 
   
 def run_ascii_import() -> None:
@@ -37,7 +36,7 @@ def run_ascii_import() -> None:
 
   while 1:
     if happened_before:
-      print("Consider your browser opened and your clipboard copied to. :D")
+      print("\nConsider your browser opened and your clipboard copied to. :D")
 
     copy_to_clipboard()
     open_ascii_browser()
@@ -67,7 +66,8 @@ def run_comment_generator() -> None:
 
 
 if __name__ == "__main__":
-  if not os.path.exists(os.path.join(get_root_dir(), ".txt")):
-    os.mkdir(".txt")
+  txt_path: str = os.path.join(get_root_dir(), "_internal", ".txt")
+  if not os.path.exists(txt_path):
+    os.mkdir(txt_path)
   
   handle()

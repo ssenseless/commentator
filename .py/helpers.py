@@ -12,7 +12,7 @@ def get_root_dir() -> str:
 def delete_font_file() -> None:
   try:
     while 1:
-      valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), ".txt"))
+      valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), "_internal", ".txt"))
 
       if not valid_file_instances:
         raise FileNotFoundError
@@ -24,7 +24,7 @@ def delete_font_file() -> None:
       filename: str = input(input_str)
       for valid_file_instance in valid_file_instances:
         if valid_file_instance in {filename, filename + ".txt"}:
-          os.remove(os.path.join(get_root_dir(), ".txt", valid_file_instance))
+          os.remove(os.path.join(get_root_dir(), "_internal", ".txt", valid_file_instance))
           print(f"\"{valid_file_instance}\" removed from system.")
           return
       

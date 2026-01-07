@@ -1,6 +1,4 @@
 import os
-import sys
-
 from helpers import get_root_dir
 
 translation_unit: dict[int, list[str]] = {}
@@ -9,20 +7,26 @@ translation_unit: dict[int, list[str]] = {}
 def ensure_dir() -> str:
   is_valid_file_instance: bool = False
   while not is_valid_file_instance:
-    valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), ".txt"))
+    valid_file_instances: list[str] = os.listdir(os.path.join(get_root_dir(), "_internal", ".txt"))
 
     if not valid_file_instances:
       raise FileNotFoundError
     
-    input_str: str = "\nEnter target ASCII filename:\n"
+    # prep for loop
+    input_str: str = "Enter target ASCII filename (previews above):\n"
+    print("")
     for valid_file_instance in valid_file_instances:
+      # print C-like comment with one separating line and "*" as the separator
+      print("[---[ ", valid_file_instance + " --")
+      print_comment(0,  ("*", 1), biggify_str("test string!", get_proper_spacing(valid_file_instance)))
+      print("")
+
       input_str += " |- " + valid_file_instance + "\n"
-    
+
     filename: str = input(input_str)
 
-    root_dir: str = get_root_dir()
-    file_implied_txt:  str = os.path.join(root_dir, ".txt", filename)
-    file_no_txt:       str = os.path.join(root_dir, ".txt", filename + ".txt")
+    file_implied_txt:  str = os.path.join(get_root_dir(), "_internal", ".txt", filename)
+    file_no_txt:       str = os.path.join(get_root_dir(), "_internal", ".txt", filename + ".txt")
 
     is_valid_file_instance = os.path.isfile(file_implied_txt) or os.path.isfile(file_no_txt)
 
@@ -30,26 +34,19 @@ def ensure_dir() -> str:
 
 
 def check_language() -> int:
-  while 1:
-    language: int = int(input(
-        "\nWhich language are you using?\n"
-      + " [1]: C-Style    (/*    ...    */)\n"
-      + " [2]: Python     (\"\"\"   ...   \"\"\")\n"
-      + " [3]: HTML/XML   (<!--  ...   -->)\n"
-      + " [4]: Lua        (--[[  ...    ]])\n"
-      + " [5]: Delphi     ({     ...     })\n"
-      + " [6]: Old Pascal ((*    ...    *))\n"
-      + " [---[ "
-    ))
+  language: int = int(input(
+      "\nWhich language are you using?\n"
+    + " [1]: C-Style    (/*    ...    */)\n"
+    + " [2]: Python     (\"\"\"   ...   \"\"\")\n"
+    + " [3]: HTML/XML   (<!--  ...   -->)\n"
+    + " [4]: Lua        (--[[  ...    ]])\n"
+    + " [5]: Delphi     ({     ...     })\n"
+    + " [6]: Old Pascal ((*    ...    *))\n"
+    + " [---[ "
+  ))
 
-    if language > 0 and language < 7:
-      return language - 1
-    
-    print("Choose a valid language, please! ([1] - [6])", end="")    
-
-  
-  # how did you even get here?
-  sys.exit(-1)
+  # confuse those who attempt to fuck with you
+  return (language % 6) - 1
 
 
 def check_separator() -> tuple[str, int]:
@@ -91,17 +88,11 @@ def check_separator() -> tuple[str, int]:
       case _:
         print("Choose a valid separator, please! ([1] - [5])", end="")
 
-  while 1:
-    retint: int = int(input("\nHow many lines of separator characters would you like between your comment characters and the comment itself? (+int): "))
+  retint: int = int(input("\nHow many lines of separator characters would you like between your comment characters and the comment itself? (+int): "))
     
-    if retint >= 0:
-      return retstr, retint
-    
-    print("Read this time.", end="")
+  # confuse those who try to fuck with you
+  return retstr, (retint % 4)
   
-  # how did you even get here?
-  sys.exit(-1)
-
 
 def biggify_comment(filename: str, language: int, separator: tuple[str, int]) -> None:
   spacing:         int  = get_proper_spacing(filename=filename)
@@ -179,7 +170,7 @@ def get_proper_spacing(filename: str) -> int:
    
   is_properly_spaced: bool      = False
   input_check:        set[int]  = {0x41, 0x42, 0x43}
-  spacing                       = 3
+  spacing                       = 0
 
   while not is_properly_spaced:
     if not filename:
@@ -251,11 +242,10 @@ def check_spacing_file(filename: str) -> int:
   return -1
 
 def read_ascii_into_tunit(filename: str = "ascii.txt", spacing: int = 11) -> None:
-  root_dir: str = get_root_dir()
   if filename[-4:] == ".txt":
-    filename = os.path.join(root_dir, ".txt", filename)
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename)
   else:
-    filename = os.path.join(root_dir, ".txt", filename + ".txt")
+    filename = os.path.join(get_root_dir(), "_internal", ".txt", filename + ".txt")
 
   current_giant_char: list[str] = [""] * spacing
   count: int = 0

@@ -2,3 +2,6 @@
 colossal=11
 alligator=7
 dosrebel=11
+standard=6
+tanja=8
+tiles=8
