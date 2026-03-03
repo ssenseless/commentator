@@ -148,9 +148,14 @@ def print_comment(language: int, separator: tuple[str, int], comment: list[str])
     print("Something went wrong with your language or separator choice, exiting...")
     sys.exit(-1)
 
-  output: str = language_bits[0] + separator_bits[0]
-  
-  if comment[0].strip:
+  output: str = language_bits[0]
+
+  if separator_bits[0]:
+    output += "\n" + separator_bits[0]
+    
+    if comment[0].strip:
+      output += separator_bits[1] + comment[0] + "\n"
+  elif comment[0].strip:
     output += " " + comment[0] + "\n"
 
   for line in comment[1:]:
