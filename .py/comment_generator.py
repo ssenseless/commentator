@@ -4,6 +4,7 @@ import pyperclip
 from helpers import get_root_dir, clear_terminal, clear
 
 translation_unit: dict[int, list[str]] = {}
+fonts_per_page:   int                  = 3
 
 
 def ensure_dir() -> str:
@@ -19,7 +20,7 @@ def ensure_dir() -> str:
     # prep for loop
     filename: str = ""
     n:        int = 0
-    max_page: int = -(len(valid_file_instances) // -5)
+    max_page: int = -(len(valid_file_instances) // -fonts_per_page)
     last_idx: int
     print("")
 
@@ -27,15 +28,15 @@ def ensure_dir() -> str:
       clear_terminal()
       input_str: str = "Enter target ASCII filename (previews above):\n"
 
-      for idx in range(0 + (n * 5), 5 + (n * 5)):
+      for idx in range(0 + (n * fonts_per_page), fonts_per_page + (n * fonts_per_page)):
         if idx < len(valid_file_instances):
           valid_file_instance: str = valid_file_instances[idx]
-          # print C-like comment with one separating line and "*" as the separator
-          print(" [---[", valid_file_instance[:-4] + " --")
+          # print C-like comment with no separating line and "*" as the separator
+          print(" [---[", valid_file_instance[:-4] + " --\n")
           print_comment(0,  ("*", 0), biggify_str("test string!", get_proper_spacing(valid_file_instance)))
           print("")
 
-          last_idx = (idx % 5) + 2
+          last_idx = (idx % fonts_per_page) + 2
           input_str += f" [{last_idx - 1}]: " + valid_file_instance[:-4] + "\n"
 
       input_str += f" [{last_idx}]: Next page (or loop back to start)\n"
@@ -46,7 +47,7 @@ def ensure_dir() -> str:
       if choice == last_idx:
         n = (n + 1) % max_page
       else:
-        filename = valid_file_instances[((choice - 1) % 5) + (n * 5)]
+        filename = valid_file_instances[((choice - 1) % fonts_per_page) + (n * fonts_per_page)]
         is_user_input_finished = True
 
     file_implied_txt:  str = os.path.join(get_root_dir(), "_internal", ".txt", filename)
@@ -149,7 +150,10 @@ def print_comment(language: int, separator: tuple[str, int], comment: list[str])
 
   output: str = language_bits[0] + separator_bits[0]
   
-  for line in comment:
+  if comment[0].strip:
+    output += " " + comment[0] + "\n"
+
+  for line in comment[1:]:
     if line.strip():
       output += separator_bits[1] + line + "\n"
 
@@ -162,17 +166,17 @@ def print_comment(language: int, separator: tuple[str, int], comment: list[str])
 def get_language_string(language: int) -> list[str]:
   match language:
     case 0:
-      return ["/*\n", " */\n"]
+      return ["/*", " */\n"]
     case 1:
-      return ["\"\"\"\n", "\"\"\"\n"]
+      return ["\"\"\"", "\"\"\"\n"]
     case 2:
-      return ["<!--\n", "-->\n"]
+      return ["<!--", "-->\n"]
     case 3:
-      return ["--[[\n", "]]\n"]
+      return ["--[[", "]]\n"]
     case 4:
-      return ["{\n", "}\n"]
+      return ["{", "}\n"]
     case 5:
-      return ["(*\n", "*)\n"]
+      return ["(*", "*)\n"]
     case _:
       return []
 
