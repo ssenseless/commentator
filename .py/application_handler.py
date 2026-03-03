@@ -1,4 +1,5 @@
 import keyboard
+import time
 
 from new_ascii_generator import *
 from comment_generator   import *
@@ -39,11 +40,13 @@ def run_ascii_import() -> None:
   print("Welcome! I'm going to copy information to your clipboard and open your browser for you.\n" \
         "Once it's open, feel free to select a font from the drop down menu, paste your clipboard into the text box,\n" \
         "and select-copy ([Ctrl] + [A], [Ctrl] + [C]), all the ASCII text in the resultant box (DO NOT CLICK THE COPY BUTTON).\n")
+  time.sleep(2)
 
   while 1:
     if happened_before:
       clear_terminal()
       print("\nConsider your browser opened and your clipboard copied to. :D")
+      time.sleep(2)
 
     copy_to_clipboard()
     open_ascii_browser()
